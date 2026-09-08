@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 
 @Configuration
 public class HardwareConfig {
@@ -14,4 +16,8 @@ public class HardwareConfig {
         return ManagementFactory.getOperatingSystemMXBean();
     }
 
+    @Bean
+    public FileSystem fileSystem() {
+        return FileSystems.getDefault();
+    }
 }

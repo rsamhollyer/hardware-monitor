@@ -5,8 +5,10 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,9 +16,11 @@ import java.util.Map;
 public class NativeHardwareService {
 
     private final OperatingSystemMXBean osBean;
+    private final FileSystem fileSystem;
 
-    public NativeHardwareService(OperatingSystemMXBean osBean) {
+    public NativeHardwareService(OperatingSystemMXBean osBean, FileSystem fileSystem) {
         this.osBean = osBean;
+        this.fileSystem = fileSystem;
     }
 
     public Map<String, Object> getMetrics() {
@@ -41,7 +45,9 @@ public class NativeHardwareService {
 
     private @NonNull Map<String, Object> getMemoryUsage() {
         Map<String, Object> mem = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader("/proc/meminfo"))) {
+        Path memInfoPath = fileSystem.getPath("/proc/meminfo");
+
+        try (BufferedReader br = Files.newBufferedReader(memInfoPath)) {
             String line;
             long memTotal = 0;
             long memAvailable = 0;
@@ -70,12 +76,15 @@ public class NativeHardwareService {
 
     private @NonNull Map<String, Object> getDiskUsage() {
         Map<String, Object> disk = new HashMap<>();
-        File root = new File("/");
+        try {
+            FileStore store = Files.getFileStore(fileSystem.getPath("/"));
 
-        disk.put("totalBytes", root.getTotalSpace());
-        disk.put("freeBytes", root.getFreeSpace());
-        disk.put("usableBytes", root.getUsableSpace());
-
+            disk.put("totalBytes", store.getTotalSpace());
+            disk.put("freeBytes", store.getUnallocatedSpace());
+            disk.put("usableBytes", store.getUsableSpace());
+        } catch (Exception e) {
+            disk.put("error", "Failed to read disk space: " + e.getMessage());
+        }
         return disk;
     }
 }
