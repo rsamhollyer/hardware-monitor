@@ -7,13 +7,17 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class NativeHardwareService {
 
+    private final OperatingSystemMXBean osBean;
+
+    public NativeHardwareService(OperatingSystemMXBean osBean) {
+        this.osBean = osBean;
+    }
 
     public Map<String, Object> getMetrics() {
         Map<String, Object> metrics = new HashMap<>();
@@ -27,7 +31,6 @@ public class NativeHardwareService {
 
     private @NonNull Map<String, Object> getCpuUsage() {
         Map<String, Object> cpu = new HashMap<>();
-        OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
         cpu.put("systemCpuLoad", osBean.getCpuLoad() * 100);
         cpu.put("processCpuLoad", osBean.getProcessCpuLoad() * 100);
