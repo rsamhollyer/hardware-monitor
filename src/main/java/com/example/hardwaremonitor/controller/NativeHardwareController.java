@@ -1,6 +1,6 @@
 package com.example.hardwaremonitor.controller;
 
-import com.example.hardwaremonitor.service.NativeHardwareService;
+import com.example.hardwaremonitor.service.SystemSpecsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,14 +11,14 @@ import java.util.Map;
 @RequestMapping("/api/v1/hardware")
 public class NativeHardwareController {
 
-    private final NativeHardwareService hardwareService;
+    private final SystemSpecsService systemSpecsService;
 
-    public NativeHardwareController(NativeHardwareService hardwareService) {
-        this.hardwareService = hardwareService;
+    public NativeHardwareController(SystemSpecsService systemSpecsService) {
+        this.systemSpecsService = systemSpecsService;
     }
 
     @GetMapping("/metrics")
-    public Map<String, Object> getMetrics() {
-        return hardwareService.getMetrics();
+    public Map<String, Object> getSystemFetch() {
+        return systemSpecsService.getSystemFetch();
     }
 }
